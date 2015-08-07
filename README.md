@@ -81,13 +81,25 @@ LDAP_LAST_NAME_FIELD=sn
 The 'users' table/model must have the following columns/attributes named 
 'username', 'first_name', 'last_name' and 'email'. The migration 
 script provided with this package has an example of how to 
-create such a table but it is commented out. 
+create such a table but it is commented out.
+ 
+The user model must have the 'auth-type' attribute added to its 'fillable' array
+to allow setting the column in the database.
 
 Also your login view and 'AuthController' must accept a user name and password.
 They can accept other fields if you want, such as email, security token, 
 etc... But the first time a new user tries to log in, since he will not
 be found in the local database, the package will need the user name to
 authenticate against the LDAP server. 
+
+## Example
+
+For a concrete example of this package used in an active project, see 
+[sroutier/laravel-5.1-enterprise-starter-kit](https://github.com/sroutier/laravel-5.1-enterprise-starter-kit).
+Note that in that project this package is used in combination with 
+[Zizaco/entrust](https://github.com/zizaco/entrust) to provide
+role based authorization, therefore there is not group model, 
+but instead a role model.
 
 ## Change log
 
