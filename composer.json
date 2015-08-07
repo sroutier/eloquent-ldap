@@ -1,0 +1,49 @@
+{
+    "name": "sroutier/eloquent-ldap",
+    "description": "A Laravel package that first tries to log the user against the internal database if that fails, it tries against the configured LDAP/AD server.",
+    "keywords": [
+      "ldap",
+      "active directory",
+      "ad",
+      "authentication",
+      "auth",
+      "ldap-eloquent",
+      "eloquent",
+      "laravel"
+    ],
+    "homepage": "https://github.com/sroutier/eloquent-ldap",
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Sebastien Routier",
+            "email": "sroutier@gmail.com"
+        }
+    ],
+    "require": {
+        "illuminate/support": "~5.1",
+        "php" : ">=5.5.9",
+        "adldap2/adldap2": "4.0.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "4.*",
+        "scrutinizer/ocular": "~1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sroutier\\EloquentLDAP\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sroutier\\EloquentLDAP\\Test\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
