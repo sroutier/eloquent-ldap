@@ -122,8 +122,7 @@ If you discover any security related issues, please email sroutier@gmail.com ins
 
 The GNU General Public License Version 3 (GPLv3). Please see [License File](LICENSE.md) for more information.
 
-[ico-version]: https://img.shields.io/packagist/v/sroutier/eloquent-ldap.svg
+[ico-version]: https://img.shields.io/packagist/vpre/sroutier/eloquent-ldap.svg
 [ico-license]: https://img.shields.io/badge/licence-GPLv3-brightgreen.svg
 
 [link-packagist]: https://packagist.org/packages/sroutier/eloquent-ldap
-[link-author]: https://github.com/sroutier
