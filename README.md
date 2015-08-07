@@ -103,8 +103,8 @@ If you discover any security related issues, please email sroutier@gmail.com ins
 
 ## Credits
 
-- [Sebastien Routier][link-author]
-- [All Contributors][link-contributors]
+- [Sebastien Routier](https://github.com/sroutier)
+- [All Contributors](https://github.com/sroutier/eloquent-ldap/graphs/contributors)
 
 ## License
 
