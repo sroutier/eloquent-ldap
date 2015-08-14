@@ -98,7 +98,7 @@ For a concrete example of this package used in an active project, see
 [sroutier/laravel-5.1-enterprise-starter-kit](https://github.com/sroutier/laravel-5.1-enterprise-starter-kit).
 Note that in that project this package is used in combination with 
 [Zizaco/entrust](https://github.com/zizaco/entrust) to provide
-role based authorization, therefore there is not group model, 
+role based authorization, therefore there is no group model, 
 but instead a role model.
 
 ## Change log
