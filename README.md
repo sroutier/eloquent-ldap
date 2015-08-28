@@ -74,6 +74,7 @@ LDAP_USERNAME_FIELD=samaccountname
 LDAP_EMAIL_FIELD=userprincipalname
 LDAP_FIRST_NAME_FIELD=givenname
 LDAP_LAST_NAME_FIELD=sn
+LDAP_USER_FILTER=(&(objectcategory=person)(samaccountname=%username))
 ```
 
 ## Usage
@@ -122,7 +123,7 @@ If you discover any security related issues, please email sroutier@gmail.com ins
 
 The GNU General Public License Version 3 (GPLv3). Please see [License File](LICENSE.md) for more information.
 
-[ico-version]: https://img.shields.io/badge/packagist-v0.1.1-orange.svg
+[ico-version]: https://img.shields.io/badge/packagist-v0.1.2-orange.svg
 [ico-license]: https://img.shields.io/badge/licence-GPLv3-brightgreen.svg
 
 [link-packagist]: https://packagist.org/packages/sroutier/eloquent-ldap
