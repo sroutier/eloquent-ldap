@@ -275,5 +275,24 @@ return [
 
     'last_name_field' => env('LDAP_LAST_NAME_FIELD', "sn"),
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | User query filter
+    |--------------------------------------------------------------------------
+    |
+    | Enter the LDAP filter or query string to search for users.
+    |
+    | TIP: Use the command line `ldapsearch` to help you build and test your
+    | query string.
+    |
+    | NOTE: The variable `%username` must be used and will be replaced by the
+    | correct value when executed.
+    |
+    */
+
+    'user_filter' => env('LDAP_USER_FILTER', "(&(objectcategory=person)(samaccountname=%username))"),
+
+
 ];
 
