@@ -14,6 +14,11 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 class EloquentLDAPUserProvider implements UserProvider
 {
     /**
+     * The replacement token used to identify the username to search for.
+     */
+    const USER_TOKEN = '%username';
+
+    /**
      * The application instance.
      *
      * @var \Illuminate\Contracts\Foundation\Application
@@ -360,19 +365,19 @@ class EloquentLDAPUserProvider implements UserProvider
      * @param  $userName    The name of the user to get information for.
      * @return Adldap User  The user information.
      */
-    private function getLDAPUserInfo($userName)
+    private function getLDAPUserInfo($username)
     {
         $adldap = false;
         $adResults = false;
 
         try {
-            $ldapConOp = $this->GetLDAPConnectionOptions();
-
-//            // Set LDAP debug log level - useful in DEV, dangerous in PROD!!
-//            ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
-
-            // Connect to AD/LDAP
-            $adldap = new Adldap($ldapConOp);
+            $ldapQuery = $this->ldapConfig['user_filter'];
+            if (strpos($ldapQuery, self::USER_TOKEN)) {
+                $ldapQuery = str_replace(self::USER_TOKEN, $username, $ldapQuery);
+            }
+            else {
+                throw new \Exception("Invalid AD/LDAP query filter, check the configuration of 'LDAP_USER_FILTER'.");
+            }
 
             $ldapFields = [
                 $this->ldapConfig['first_name_field'],
@@ -381,21 +386,20 @@ class EloquentLDAPUserProvider implements UserProvider
                 'useraccountcontrol',
             ];
 
-            $ldapQuery = "(&(&(&(&(objectcategory = 'person')(!(samaccountname = 'adm*')))(!(samaccountname = 'test*')))(!(displayname = '~*')))(samaccountname = 'domain.user1'))";
-            $ldapQuery = "(samaccountname = 'domain.user1')";
-            $ldapQuery = "(&(objectcategory='person')(samaccountname='domain.user1'))";
+            // Build connection info.
+            $ldapConOp = $this->GetLDAPConnectionOptions();
 
-            $adResults = $adldap->users()->search()->select($ldapFields)->query($ldapQuery);
+//            // Set LDAP debug log level - useful in DEV, dangerous in PROD!!
+//            ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
 
+            // Connect to AD/LDAP
+            $adldap = new Adldap($ldapConOp);
 
-            $adResults = $adldap->users()->search()
-                ->select($ldapFields)
-                ->whereEquals(\Adldap\Schemas\ActiveDirectory::ACCOUNT_NAME, $userName)
-                ->first();
+            $adResults = $adldap->search()->select($ldapFields)->query($ldapQuery);
 
-
-            // Request the user info.
-            $adResults = $adldap->users()->find($userName, $ldapFields);
+            if (isset($adResults) && is_array($adResults) && isset($adResults[0])) {
+                $adResults = $adResults[0];
+            }
 
             if (!$adResults) {
                 $this->handleLDAPError($adldap);
@@ -544,14 +548,14 @@ class EloquentLDAPUserProvider implements UserProvider
      * @param array $adldap   The instance of the adLDAP object to check for
      *                        error.
      */
-    private function handleLDAPError($adldap)
+    private function handleLDAPError(\Adldap\Adldap $adldap)
     {
-//        if (false != $adldap) {
-//            // May be helpful for finding out what and why went wrong.
-//            $adLDAPError = $adldap->getLastError();
-//            if ("Success" != $adLDAPError) {
-//                Log::error('Problem with LDAP:' . $adLDAPError);
-//            }
-//        }
+        if (false != $adldap) {
+            // May be helpful for finding out what and why went wrong.
+            $adLDAPError = $adldap->getConnection()->getLastError();
+            if ("Success" != $adLDAPError) {
+                Log::error('Problem with LDAP:' . $adLDAPError);
+            }
+        }
     }
 }
