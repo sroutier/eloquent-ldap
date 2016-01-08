@@ -19,6 +19,14 @@ Via Composer
 $ composer require sroutier/eloquent-ldap
 ```
 
+## Declare provider
+
+Add this declaration in the provider array of your `./config/app.php` file:
+
+``` php
+        Sroutier\EloquentLDAP\Providers\EloquentLDAPServiceProvider::class,
+```
+
 ## Publish assets
 
 To publish the assets, config file and migration scripts, run this command:
@@ -31,8 +39,8 @@ This will publish a config file and a migration file.
 
 ## Migration
 
-The migration script will add a new column 'auth_type' to the schema of the 
-'users' table, and one column 'resync_on_login' to the 'groups' table. You 
+The migration script will add a new column `auth_type` to the schema of the 
+`users` table, and one column `resync_on_login` to the `groups` table. You 
 should already have both tables, but if you do not or if you want to use
 different tables for those purposes, the migration to create those 
 tables is provided as an example, but commented out. You will 
@@ -48,7 +56,7 @@ $ php artisan migrate
 ## Configure
 
 The recommended way to configure this package is by defining the following 
-variables in you '.env' file and adjusting the values there. For a 
+variables in you `.env` file and adjusting the values there. For a 
 detailed explanation of each setting, refer to the config file 
 that you published above.
 ```
@@ -79,15 +87,15 @@ LDAP_USER_FILTER=(&(objectcategory=person)(samaccountname=%username))
 
 ## Usage
 
-The 'users' table/model must have the following columns/attributes named 
-'username', 'first_name', 'last_name' and 'email'. The migration 
+The `users` table/model must have the following columns/attributes named 
+`username`, `first_name`, `last_name` and `email`. The migration 
 script provided with this package has an example of how to 
 create such a table but it is commented out.
  
-The user model must have the 'auth-type' attribute added to its 'fillable' array
+The user model must have the `auth-type` attribute added to its `fillable` array
 to allow setting the column in the database.
 
-Also your login view and 'AuthController' must accept a user name and password.
+Also your login view and `AuthController` must accept a user name and password.
 They can accept other fields if you want, such as email, security token, 
 etc... But the first time a new user tries to log in, since he will not
 be found in the local database, the package will need the user name to
