@@ -20,4 +20,18 @@ interface EloquentLDAPUserInterface
      */
     public function membershipList();
 
+
+    /**
+     * Returns the validation rules required to create a User.
+     *
+     * @return array
+     */
+    public static function getCreateValidationRules();
+
+    /**
+     * Returns the validation rules required to update a User.
+     *
+     * @return array
+     */
+    public static function getUpdateValidationRules($id);
 }
