@@ -253,7 +253,8 @@ class EloquentLDAPUserProvider implements UserProvider
 
             $userModel = $this->createUserModel();
 
-            $ldapFields = [ 'first_name'    => $firstName,
+            $ldapFields = [ 'username'      => $userName,
+                            'first_name'    => $firstName,
                             'last_name'     => $lastName,
                             'email'         => $email,
                             'enabled'       => $enabled,
