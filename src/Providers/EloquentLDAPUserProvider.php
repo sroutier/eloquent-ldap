@@ -10,6 +10,8 @@ use Illuminate\Contracts\Foundation\Application;
 use Adldap\Adldap;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Monolog\Logger;
+use Validator;
 
 class EloquentLDAPUserProvider implements UserProvider
 {
@@ -196,13 +198,25 @@ class EloquentLDAPUserProvider implements UserProvider
     }
 
     /**
+     * Returns class name of the user model.
+     *
+     * @return string
+     */
+    public function userModelClassName()
+    {
+        $class = '\\'.ltrim($this->user_model, '\\');
+
+        return $class;
+    }
+
+    /**
      * Create a new instance of the user model.
      *
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function createUserModel()
     {
-        $class = '\\'.ltrim($this->user_model, '\\');
+        $class = $this->userModelClassName();
 
         return new $class;
     }
@@ -238,25 +252,45 @@ class EloquentLDAPUserProvider implements UserProvider
             $enabled   = (($ldapUserInfo['useraccountcontrol'][0] & 2) == 0);
 
             $userModel = $this->createUserModel();
-            $user = $userModel->create(array(
-                'username'   => $userName,
-                'first_name' => $firstName,
-                'last_name'  => $lastName,
-                'email'      => $email,
-                'password'   => 'Laravel Rock! ASP.Net blows! ' . date("Y-m-d H:i:s"),
-                'auth_type'  => $this->ldapConfig['label_ldap'],
+
+            $ldapFields = [ 'first_name'    => $firstName,
+                            'last_name'     => $lastName,
+                            'email'         => $email,
+                            'enabled'       => $enabled,
+                          ];
+
+            $validator = Validator::make($ldapFields, $userModel::getCreateValidationRules());
+
+            if ($validator->fails()) {
+                Log::error('Validation failed for user ['.$userName.'], in [EloquentLDAPUserProvider::createUserFromLDAP].');
+                $messages = $validator->errors();
+                foreach ($messages->all() as $message) {
+                    Log::error('Validation message: ' . $message);
+                }
+
+            }
+            else {
+                $user = $userModel->create(array(
+                    'username'   => $userName,
+                    'first_name' => $firstName,
+                    'last_name'  => $lastName,
+                    'email'      => $email,
+                    'password'   => 'Laravel Rock! ASP.Net blows! ' . date("Y-m-d H:i:s"),
+                    'auth_type'  => $this->ldapConfig['label_ldap'],
                 ));
 
-            if ($enabled) {
-                $user->enabled = true;
-            } else {
-                $user->enabled = false;
-            }
-            $user->save();
+                if ($enabled) {
+                    $user->enabled = true;
+                } else {
+                    $user->enabled = false;
+                }
+                $user->save();
 
-            if ($this->ldapConfig['replicate_group_membership']) {
-                $this->replicateMembershipFromLDAP($user);
+                if ($this->ldapConfig['replicate_group_membership']) {
+                    $this->replicateMembershipFromLDAP($user);
+                }
             }
+
         }
 
         return $user;
