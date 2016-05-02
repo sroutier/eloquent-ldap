@@ -494,6 +494,7 @@ class EloquentLDAPUserProvider implements UserProvider
         try {
             $groupModel = $this->createGroupModel();
             $ldapConOp = $this->GetLDAPConnectionOptions();
+            $ldapRecursive = $this->ldapConfig['recursive_groups'];
 
 //            // Set LDAP debug log level - useful in DEV, dangerous in PROD!!
 //            ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
@@ -501,7 +502,7 @@ class EloquentLDAPUserProvider implements UserProvider
             // Connect to AD/LDAP
             $adldap = new Adldap($ldapConOp);
             // Request the user's group membership.
-            $adldapGroups = $adldap->users()->find($user->username)->getGroups();
+            $adldapGroups = $adldap->users()->find($user->username)->getGroups([], $ldapRecursive);
 
             foreach($adldapGroups as $adldapGroup) {
                 try {
