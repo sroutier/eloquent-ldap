@@ -186,11 +186,15 @@ class EloquentLDAPUserProvider implements UserProvider
             // Validate credentials against LDAP/AD server.
             $credentialsValidated = $this->validateLDAPCredentials($credentials);
             // If validated and config set to resync group membership on login.
-            if ( $credentialsValidated && ($this->ldapConfig['resync_on_login']) ) {
-                // First, revoke membership to all groups marked to 'resync_on_login'.
-                $this->revokeMembership($user);
-                // Then replicate group membership.
-                $this->replicateMembershipFromLDAP($user);
+            if ( $credentialsValidated ) {
+                // Sync user enable/disable state
+                $this->syncEnable($user);
+                if ($this->ldapConfig['resync_on_login']) {
+                    // First, revoke membership to all groups marked to 'resync_on_login'.
+                    $this->revokeMembership($user);
+                    // Then replicate group membership.
+                    $this->replicateMembershipFromLDAP($user);
+                }
             }
          }
 
@@ -233,6 +237,25 @@ class EloquentLDAPUserProvider implements UserProvider
         return new $class;
     }
 
+
+    private function syncEnable($user)
+    {
+        $ldapUserInfo = $this->getLDAPUserInfo($user->username);
+        // If we found the user in LDAP
+        if (true == $ldapUserInfo ) {
+            $enabled = (($ldapUserInfo[0]['useraccountcontrol'][0] & 2) == 0);
+
+            if ($enabled) {
+                $user->enabled = true;
+            }
+            else {
+                $user->enabled = false;
+            }
+            $user->save();
+        }
+    }
+
+
     /**
      * Creates a local user from the information gained from the LDAP/AD
      * server.
@@ -246,10 +269,10 @@ class EloquentLDAPUserProvider implements UserProvider
         $ldapUserInfo = $this->getLDAPUserInfo($userName);
         // If we found the user in LDAP
         if (true == $ldapUserInfo ) {
-            $firstName = $this->GetArrayIndexedValueOrDefault($ldapUserInfo, $this->ldapConfig['first_name_field'], 0, $userName);
-            $lastName  = $this->GetArrayIndexedValueOrDefault($ldapUserInfo, $this->ldapConfig['last_name_field'], 0, '');
-            $email     = $this->GetArrayIndexedValueOrDefault($ldapUserInfo, $this->ldapConfig['email_field'], 0, '');
-            $enabled   = (($ldapUserInfo['useraccountcontrol'][0] & 2) == 0);
+            $firstName = $this->GetArrayIndexedValueOrDefault($ldapUserInfo[0], $this->ldapConfig['first_name_field'], 0, $userName);
+            $lastName  = $this->GetArrayIndexedValueOrDefault($ldapUserInfo[0], $this->ldapConfig['last_name_field'], 0, '');
+            $email     = $this->GetArrayIndexedValueOrDefault($ldapUserInfo[0], $this->ldapConfig['email_field'], 0, '');
+            $enabled   = (($ldapUserInfo[0]['useraccountcontrol'][0] & 2) == 0);
 
             $userModel = $this->createUserModel();
 
@@ -360,6 +383,9 @@ class EloquentLDAPUserProvider implements UserProvider
 
         try {
             $value = $array[$key];
+            if (null === $value) {
+                $value = $default;
+            }
         }
         catch( Exception $ex) {
             $value = $default;
