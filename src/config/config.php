@@ -15,6 +15,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Debug
+    |--------------------------------------------------------------------------
+    |
+    | Enables a higher debug level for the underlying LDAP library.
+    |
+    */
+
+    'debug' => env('LDAP.DEBUG', 'false'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Server type
+    |--------------------------------------------------------------------------
+    |
+    | The server type either 'LDAP' for Lightweight Directory Access Protocol
+    | servers, or MSAD for Microsoft Active Directory servers.
+    |
+    */
+
+    'server_type' => env('LDAP.SERVER_TYPE', 'MSAD'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Automatically create new accounts on first login
     |--------------------------------------------------------------------------
     |

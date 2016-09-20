@@ -189,7 +189,7 @@ class EloquentLDAPUserProvider implements UserProvider
             if ( $credentialsValidated ) {
                 // Sync user enable/disable state
                 $this->syncEnable($user);
-                if ($this->ldapConfig['resync_on_login']) {
+                if ( ($this->ldapConfig['resync_on_login']) && ($this->ldapConfig['replicate_group_membership'])) {
                     // First, revoke membership to all groups marked to 'resync_on_login'.
                     $this->revokeMembership($user);
                     // Then replicate group membership.
@@ -445,13 +445,16 @@ class EloquentLDAPUserProvider implements UserProvider
                 $this->ldapConfig['last_name_field'],
                 $this->ldapConfig['email_field'],
                 'useraccountcontrol',
+                'dn',
             ];
 
             // Build connection info.
             $ldapConOp = $this->GetLDAPConnectionOptions();
 
-//            // Set LDAP debug log level - useful in DEV, dangerous in PROD!!
-//            ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
+            if ($this->ldapConfig['debug']) {
+                // Set LDAP debug log level - useful in DEV, dangerous in PROD!!
+                ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
+            }
 
             // Connect to AD/LDAP
             $adldap = new Adldap($ldapConOp);
@@ -523,8 +526,10 @@ class EloquentLDAPUserProvider implements UserProvider
             $ldapConOp = $this->GetLDAPConnectionOptions();
             $ldapRecursive = $this->ldapConfig['recursive_groups'];
 
-//            // Set LDAP debug log level - useful in DEV, dangerous in PROD!!
-//            ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
+            if ($this->ldapConfig['debug']) {
+                // Set LDAP debug log level - useful in DEV, dangerous in PROD!!
+                ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
+            }
 
             // Connect to AD/LDAP
             $adldap = new Adldap($ldapConOp);
@@ -576,12 +581,22 @@ class EloquentLDAPUserProvider implements UserProvider
             $userName     = $credentials['username'];
             $ldapConOp    = $this->GetLDAPConnectionOptions();
 
-    //            // Set LDAP debug log level - useful in DEV, dangerous in PROD!!
-    //            ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
+            if ($this->ldapConfig['debug']) {
+                // Set LDAP debug log level - useful in DEV, dangerous in PROD!!
+                ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
+            }
 
             // Try to authenticate using AD/LDAP
             $adldap = new Adldap($ldapConOp);
-            $authUser = $adldap->authenticate($userName, $userPassword);
+
+            // For LDAP servers, the authentication is done with the full DN,
+            // Not the username with the suffix as is done for MSAD servers.
+            if ('LDAP' === $this->ldapConfig['server_type']) {
+                $ldapUserInfo = $this->getLDAPUserInfo($userName);
+                $userName = $this->GetArrayValueOrDefault($ldapUserInfo[0], 'dn', '');
+            }
+
+                $authUser = $adldap->authenticate($userName, $userPassword);
             // If the user got authenticated
             if ($authUser == true) {
                 $credentialsValidated = true;
