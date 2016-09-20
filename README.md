@@ -59,31 +59,98 @@ The recommended way to configure this package is by defining the following
 variables in you `.env` file and adjusting the values there. For a 
 detailed explanation of each setting, refer to the config file 
 that you published above.
+
+The configuration that you will need will vary based on the type or server that you wish to authenticate against.
+Below are example config section for both options, Lightweight Directory Access Protocol (LDAP) and Microsoft 
+Active Directory (MSAD).
+
+### Microsoft Active Directory server.
+
+Below is a section of a ```.env``` config file that shows how to configure your system to access a Microsoft Active 
+Directory server:
+
 ```
-LDAP_ENABLED=false
-LDAP_CREATE_ACCOUNTS=true
-LDAP_REPLICATE_GROUP_MEMBERSHIP=true
-LDAP_RESYNC_ON_LOGIN=true
-LDAP_GROUP_MODEL=App\Models\Group
-LDAP_LABEL_INTERNAL=internal
-LDAP_LABEL_LDAP=ldap
+LDAP.ENABLED=true
+LDAP.DEBUG=false
+LDAP.SERVER_TYPE=MSAD
+LDAP.CREATE_ACCOUNTS=true
+LDAP.REPLICATE_GROUP_MEMBERSHIP=true
+LDAP.RESYNC_ON_LOGIN=true
+LDAP.GROUP_MODEL=App\Models\Role
+LDAP.LABEL_INTERNAL=internal
+LDAP.LABEL_LDAP=ldap
 LDAP_ACCOUNT_SUFFIX=@company.com
 LDAP_BASE_DN=DC=department,DC=company,DC=com
 LDAP_SERVER=ldapsrv01.company.com
-LDAP_PORT=389
+LDAP.PORT=389
 LDAP_USER_NAME=ldap_reader
 LDAP_PASSWORD=PaSsWoRd
-LDAP_RETURN_REAL_PRIMARY_GROUP=true
-LDAP_SECURED=false
-LDAP_SECURED_PORT=636
-LDAP_RECURSIVE_GROUPS=true
-LDAP_SSO=false
-LDAP_USERNAME_FIELD=samaccountname
-LDAP_EMAIL_FIELD=userprincipalname
-LDAP_FIRST_NAME_FIELD=givenname
-LDAP_LAST_NAME_FIELD=sn
+LDAP.RETURN_REAL_PRIMARY_GROUP=true
+LDAP.SECURED=false
+LDAP.SECURED_PORT=636
+LDAP.RECURSIVE_GROUPS=true
+LDAP.SSO=false
+LDAP.USERNAME_FIELD=samaccountname
+LDAP.EMAIL_FIELD=userprincipalname
+LDAP.FIRST_NAME_FIELD=givenname
+LDAP.LAST_NAME_FIELD=sn
 LDAP_USER_FILTER=(&(objectcategory=person)(samaccountname=%username))
 ```
+
+### Lightweight Directory Access Protocol server.
+
+Below is a section of a ```.env``` config file that shows how to configure your system to access a Lightweight 
+Directory Access Protocol server:
+
+```
+LDAP.ENABLED=true
+LDAP.DEBUG=false
+LDAP.SERVER_TYPE=LDAP
+LDAP.CREATE_ACCOUNTS=true
+LDAP.REPLICATE_GROUP_MEMBERSHIP=false
+LDAP.RESYNC_ON_LOGIN=false
+LDAP.GROUP_MODEL=App\Models\Role
+LDAP.LABEL_INTERNAL=internal
+LDAP.LABEL_LDAP=ldap
+LDAP.ACCOUNT_SUFFIX=
+LDAP.BASE_DN=dc=example,dc=com
+LDAP.SERVER=ldap.forumsys.com
+LDAP.PORT=389
+LDAP.USER_NAME=cn=read-only-admin,dc=example,dc=com
+LDAP.PASSWORD=password
+LDAP.RETURN_REAL_PRIMARY_GROUP=true
+LDAP.SECURED=false
+LDAP.SECURED_PORT=636
+LDAP.RECURSIVE_GROUPS=true
+LDAP.SSO=false
+LDAP.USERNAME_FIELD=uid
+LDAP.EMAIL_FIELD=mail
+LDAP.FIRST_NAME_FIELD=
+LDAP.LAST_NAME_FIELD=sn
+LDAP.USER_FILTER=(&(objectClass=person)(uid=%username))
+```
+
+**_NOTE:_** THe configuration options above will allow you to connect and authenticate users using the publicly 
+available OpenLDAP test server hosted by 
+[Forum Systems](http://www.forumsys.com/en/tutorials/integration-how-to/ldap/online-ldap-test-server/).
+
+### MSAD vs LDAP
+
+A couple of difference in how to configure the system depending on which server type is being used are worth pointing 
+out.
+
+* LDAP.SERVER_TYPE: Can be either LDAP or MSAD. Lets the system know how to interact with the authentication server.
+* LDAP.REPLICATE_GROUP_MEMBERSHIP: Currently only supported for MSAD servers.
+* LDAP.RESYNC_ON_LOGIN: Currently only supported for MSAD servers.
+* LDAP.ACCOUNT_SUFFIX: 
+    * LDAP: Should remain empty for LDAP servers. 
+    * MSAD: Should contain the static part of the users email address.
+* LDAP.USER_NAME: 
+    * LDAP: Should be the complete DN of the user to bind with.
+    * MSAD: Simply the name of the user to bind with.
+* LDAP.RETURN_REAL_PRIMARY_GROUP:
+    * LDAP: Not used.
+    * MSAD: Fix Microsoft AD not following standards may incur extra processing.
 
 ## Usage
 

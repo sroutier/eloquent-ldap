@@ -18,7 +18,8 @@ return [
     | Debug
     |--------------------------------------------------------------------------
     |
-    | Enables a higher debug level for the underlying LDAP library.
+    | Enables a higher debug level for the underlying LDAP library. Useful when
+    | combined with a packet sniffer to debug connectivity issues.
     |
     */
 
