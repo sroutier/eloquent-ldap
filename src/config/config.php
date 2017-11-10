@@ -23,7 +23,7 @@ return [
     |
     */
 
-    'debug' => env('eloquent-ldap.debug', 'false'),
+    'debug' => env('eloquent-ldap.debug', false),
 
     /*
     |--------------------------------------------------------------------------
