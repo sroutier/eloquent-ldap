@@ -11,6 +11,14 @@ to local groups that have matching names of the LDAP groups
 that the user is a member of.
 
 
+## Version Compatibility
+
+ Laravel  | LERN
+:---------|:----------
+ 5.1.x    | 1.x
+ 5.5.x    | 2.x
+
+
 ## Install
 
 Via Composer
