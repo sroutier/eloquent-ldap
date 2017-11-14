@@ -4,6 +4,7 @@ namespace Sroutier\EloquentLDAP\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
+use Auth;
 
 class EloquentLDAPServiceProvider extends ServiceProvider
 {
@@ -35,8 +36,11 @@ class EloquentLDAPServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app[ 'auth' ]->extend( 'eloquent-ldap', function () {
-            return new EloquentLDAPUserProvider($this->app);
-        } );
+
+        Auth::provider('eloquent-ldap', function ($app, array $config) {
+            // Return an instance of Illuminate\Contracts\Auth\UserProvider...
+            return new EloquentLDAPUserProvider($app);
+        });
+
     }
 }

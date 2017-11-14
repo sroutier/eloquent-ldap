@@ -2,6 +2,8 @@
 
 namespace Sroutier\EloquentLDAP\Contracts;
 
+use Illuminate\Container\Container as Application;
+
 interface EloquentLDAPUserInterface
 {
     /**
@@ -26,12 +28,12 @@ interface EloquentLDAPUserInterface
      *
      * @return array
      */
-    public static function getCreateValidationRules();
+    public static function getCreateValidationRules(Application $app);
 
     /**
      * Returns the validation rules required to update a User.
      *
      * @return array
      */
-    public static function getUpdateValidationRules($id);
+    public static function getUpdateValidationRules(Application $app, $id);
 }
