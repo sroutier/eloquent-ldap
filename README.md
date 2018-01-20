@@ -113,7 +113,7 @@ Directory Access Protocol server:
 ```
 eloquent-ldap.enabled=true
 eloquent-ldap.debug=false
-eloquent-ldap.server_type=ldap
+eloquent-ldap.server_type=LDAP
 eloquent-ldap.create_accounts=true
 eloquent-ldap.replicate_group_membership=false
 eloquent-ldap.resync_on_login=false
